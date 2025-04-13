@@ -1,5 +1,5 @@
 #lang racket
-(provide juego juego-agregar-jugador)
+(provide juego juego-agregar-jugador juego-obtener-jugador-actual)
 ; Representación TDA Juego:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. Lista de jugadores (List of jugador)
@@ -56,4 +56,31 @@
            maximoHoteles
            estadoJuego)
     ))
-    
+
+
+
+; Descripción: Obtiene el TDA del jugador cuyo turno está actualmente en curso.
+; Dominio: juego(juego)
+; Recorrido: jugador (El TDA del jugador actual)
+; Tipo recursión: No aplica
+(define (juego-obtener-jugador-actual juego-actual)
+  ; Accedemos a la lista de jugadores 
+  ; y luego obtenemos el elemento en el índice del turno actual que corresponde al indice 4 (list-ref juego-actual 4)
+  (list-ref (car juego-actual) (list-ref juego-actual 4)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
