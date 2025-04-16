@@ -1,5 +1,5 @@
 #lang racket
-(provide jugador jugador-mover)
+(provide jugador jugador-mover jugador-comprar-propiedad)
 ; Representación TDA Jugador:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. (car lista)      => id (Integer)
@@ -56,3 +56,47 @@
              estaEnCarcel     
              totalCartas)     
   )) ; Se mantienen todos los parametros iguales, menos la nueva posicion que estara actualizada
+
+
+
+; Descripción: Permite a un jugador comprar una propiedad. Verifica si tiene dinero suficiente. Si puede comprar, devuelve un nuevo TDA jugador con el dinero descontado y la propiedad añadida a su lista. Si no puede, devuelve el jugador original sin cambios.
+; Dominio: jugador(jugador) X propiedad(propiedad)
+; Recorrido: jugador (El TDA del jugador actualizado o el original si no hay fondos)
+; Tipo recursión: No aplica
+(define (jugador-comprar-propiedad jugador-actual propiedad-a-comprar)
+  (let* (
+         ; Datos del jugador actual
+         (id                   (car jugador-actual))        ; No cambia
+         (nombre               (cadr jugador-actual))       ; No cambia
+         (dinero-jugador       (caddr jugador-actual))      ; Necesario para comparar y calcular
+         (propiedades-viejas   (cadddr jugador-actual))     ; Necesario para añadir la nueva
+         (posicion             (list-ref jugador-actual 4)) ; No cambia
+         (estaEnCarcel         (list-ref jugador-actual 5)) ; No cambia
+         (totalCartas          (list-ref jugador-actual 6)) ; No cambia
+
+         ; Datos de la propiedad que se quiere comprar
+         ; Asumimos que el precio es el 3er elemento (caddr) del TDA propiedad
+         (precio-propiedad     (caddr propiedad-a-comprar))
+        ) 
+
+    ; Hacemos la condicion para saber si el jugador tiene suficiente dinero
+    (if (>= dinero-jugador precio-propiedad)
+        ; Calcula el nuevo dinero y la nueva lista de propiedades
+        (let* ((dinero-nuevo       (- dinero-jugador precio-propiedad))
+               ; Añadimos la propiedad nueva al principio de la lista vieja 
+               (propiedades-nuevas (cons propiedad-a-comprar propiedades-viejas)))
+
+          ; Construimos y devolvemos el nuevo jugador con datos actualizados
+          (jugador id
+                   nombre
+                   dinero-nuevo         ; Dinero actualizado
+                   propiedades-nuevas   ; Lista de propiedades actualizada
+                   posicion
+                   estaEnCarcel
+                   totalCartas))
+        ; Parte del else
+        ; Devolvemos el jugador original sin  modificaciones
+        jugador-actual
+     ) 
+   ) 
+) 
