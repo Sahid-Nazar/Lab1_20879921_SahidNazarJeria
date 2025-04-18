@@ -1,5 +1,7 @@
 #lang racket
-(provide jugador jugador-mover jugador-comprar-propiedad)
+(provide jugador jugador-mover jugador-comprar-propiedad
+         jugador-id jugador-nombre jugador-dinero jugador-propiedades
+         jugador-posicion jugador-estaEnCarcel jugador-totalCartasSalirCarcel)
 ; Representación TDA Jugador:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. (car lista)      => id (Integer)
@@ -17,6 +19,57 @@
 (define (jugador id nombre dinero propiedades posicion estaEnCarcel totalCartasSalirCarcel)
   (list id nombre dinero propiedades posicion estaEnCarcel totalCartasSalirCarcel))
 
+; Selectores TDA Jugador (Modificacion por la actualizacion de las instrucciones)
+
+; Descripción: Obtiene el ID único del jugador.
+; Dominio: jugador(jugador)
+; Recorrido: Integer
+; Tipo recursión: No aplica
+(define (jugador-id un-jugador)
+  (car un-jugador))
+
+; Descripción: Obtiene el nombre del jugador.
+; Dominio: jugador(jugador)
+; Recorrido: String
+; Tipo recursión: No aplica
+(define (jugador-nombre un-jugador)
+  (cadr un-jugador))
+
+; Descripción: Obtiene la cantidad de dinero actual del jugador.
+; Dominio: jugador(jugador)
+; Recorrido: Integer
+; Tipo recursión: No aplica
+(define (jugador-dinero un-jugador)
+  (caddr un-jugador))
+
+; Descripción: Obtiene la lista de propiedades (TDAs propiedad) que posee el jugador.
+; Dominio: jugador(jugador)
+; Recorrido: List
+; Tipo recursión: No aplica
+(define (jugador-propiedades un-jugador)
+  (cadddr un-jugador))
+
+; Descripción: Obtiene la posición actual del jugador en el tablero (índice numérico).
+; Dominio: jugador(jugador)
+; Recorrido: Integer
+; Tipo recursión: No aplica
+(define (jugador-posicion un-jugador)
+  (list-ref un-jugador 4))
+
+; Descripción: Verifica si el jugador se encuentra actualmente en la cárcel.
+; Dominio: jugador(jugador)
+; Recorrido: Boolean
+; Tipo recursión: No aplica
+(define (jugador-estaEnCarcel un-jugador)
+  (list-ref un-jugador 5))
+
+; Descripción: Obtiene la cantidad de cartas "Salir de la Cárcel Gratis" que posee el jugador.
+; Dominio: jugador(jugador)
+; Recorrido: Integer
+; Tipo recursión: No aplica
+(define (jugador-totalCartasSalirCarcel un-jugador)
+  (list-ref un-jugador 6))
+
 
 
 ; Descripción: Calcula la nueva posición de un jugador en el tablero después de lanzar los dados, considerando el movimiento circular (asumiendo 40 casillas). Devuelve un nuevo TDA jugador con la posición actualizada.
@@ -25,37 +78,35 @@
 ; Tipo recursión: No aplica
 (define (jugador-mover jugador-actual valoresDados juego-actual)
   ; Asumimos tamaño del tablero = 40 para el movimiento circular
-  (let* ( 
-         ; Datos del jugador que no cambian 
-         (id                (car jugador-actual))        ; 1er elemento
-         (nombre            (cadr jugador-actual))       ; 2do elemento
-         (dinero            (caddr jugador-actual))      ; 3er elemento
-         (propiedades       (cadddr jugador-actual))     ; 4to elemento
-         (estaEnCarcel      (list-ref jugador-actual 5)) ; 6to elemento (índice 5)
-         (totalCartas       (list-ref jugador-actual 6)) ; 7mo elemento (índice 6)
+  (let* (
+         ; Extracción usando Selectores 
+         (id                (jugador-id jugador-actual)) ; <-- Usamos selector
+         (nombre            (jugador-nombre jugador-actual)) ; <-- Usamos selector
+         (dinero            (jugador-dinero jugador-actual)) ; <-- Usamos selector
+         (propiedades       (jugador-propiedades jugador-actual)) ; <-- Usamos selector
+         (posicion-vieja    (jugador-posicion jugador-actual)) ; <-- Usamos selector
+         (estaEnCarcel      (jugador-estaEnCarcel jugador-actual)) ; <-- Usamos selector
+         (totalCartas       (jugador-totalCartasSalirCarcel jugador-actual)) ; <-- Usamos selector
 
-         ; Datos que si usamos para calcular 
-         (posicion-vieja    (list-ref jugador-actual 4)) ; 5to elemento (índice 4)
-         (dado1             (car valoresDados))          ; Sacamos el valor del primer dado del par
-         (dado2             (cdr valoresDados))          ; Sacamos el valor del segundo dado del par
-         (suma-dados        (+ dado1 dado2))             ; Sumamos los dados
+         ; Datos del lanzamiento de dados (estos no usan selectores de jugador)
+         (dado1             (car valoresDados))
+         (dado2             (cdr valoresDados))
+         (suma-dados        (+ dado1 dado2))
 
-         ; Cálculamos la nueva posición
-         ; Sumamos la posición vieja y los dados, y usamos módulo 40 para la vuelta
+         ; Cálculo de la nueva posición
          (nueva-posicion    (modulo (+ posicion-vieja suma-dados) 40))
-        ) ; Fin let*
+        ) 
 
-    ; Construimos y devolvemos el nuevo jugador 
-    ; Llamamos al constructor 'jugador' con los datos originales,
-    ; excepto por la posición, donde usamos la nueva para que este actualizada.
-    (jugador id                 
-             nombre           
-             dinero           
-             propiedades      
-             nueva-posicion   
-             estaEnCarcel     
-             totalCartas)     
-  )) ; Se mantienen todos los parametros iguales, menos la nueva posicion que estara actualizada
+    ; Construimos y devolvemos el nuevo jugador
+    ; Llamamos al constructor 'jugador' 
+    (jugador id
+             nombre
+             dinero
+             propiedades
+             nueva-posicion   ; <-- La posición actualizada
+             estaEnCarcel
+             totalCartas)
+  ))
 
 
 
@@ -65,38 +116,35 @@
 ; Tipo recursión: No aplica
 (define (jugador-comprar-propiedad jugador-actual propiedad-a-comprar)
   (let* (
-         ; Datos del jugador actual
-         (id                   (car jugador-actual))        ; No cambia
-         (nombre               (cadr jugador-actual))       ; No cambia
-         (dinero-jugador       (caddr jugador-actual))      ; Necesario para comparar y calcular
-         (propiedades-viejas   (cadddr jugador-actual))     ; Necesario para añadir la nueva
-         (posicion             (list-ref jugador-actual 4)) ; No cambia
-         (estaEnCarcel         (list-ref jugador-actual 5)) ; No cambia
-         (totalCartas          (list-ref jugador-actual 6)) ; No cambia
+         ; Datos del jugador actual usando selectores
+         (id                   (jugador-id jugador-actual))
+         (nombre               (jugador-nombre jugador-actual))
+         (dinero-jugador       (jugador-dinero jugador-actual)) 
+         (propiedades-viejas   (jugador-propiedades jugador-actual))
+         (posicion             (jugador-posicion jugador-actual))
+         (estaEnCarcel         (jugador-estaEnCarcel jugador-actual)) 
+         (totalCartas          (jugador-totalCartasSalirCarcel jugador-actual)) 
 
-         ; Datos de la propiedad que se quiere comprar
-         ; Asumimos que el precio es el 3er elemento (caddr) del TDA propiedad
-         (precio-propiedad     (caddr propiedad-a-comprar))
-        ) 
+         ; Dato de la propiedad usando selector 
+         (precio-propiedad     (propiedad-precio propiedad-a-comprar)) ; Usa selector de propiedad
+        )
 
     ; Hacemos la condicion para saber si el jugador tiene suficiente dinero
     (if (>= dinero-jugador precio-propiedad)
-        ; Calcula el nuevo dinero y la nueva lista de propiedades
+        ; SI puede comprar se calcula nuevos valores y construye nuevo jugador
         (let* ((dinero-nuevo       (- dinero-jugador precio-propiedad))
-               ; Añadimos la propiedad nueva al principio de la lista vieja 
-               (propiedades-nuevas (cons propiedad-a-comprar propiedades-viejas)))
+               (propiedades-nuevas (cons propiedad-a-comprar propiedades-viejas))) ; Añade al principio
 
           ; Construimos y devolvemos el nuevo jugador con datos actualizados
           (jugador id
                    nombre
-                   dinero-nuevo         ; Dinero actualizado
-                   propiedades-nuevas   ; Lista de propiedades actualizada
+                   dinero-nuevo         ; <-- Dinero actualizado
+                   propiedades-nuevas   ; <-- Lista de propiedades actualizada
                    posicion
                    estaEnCarcel
                    totalCartas))
-        ; Parte del else
-        ; Devolvemos el jugador original sin  modificaciones
+        ; Si el dinero del jugador es menor (caso else) devolvemos el jugador original sin modificaciones
         jugador-actual
      ) 
    ) 
-) 
+)
