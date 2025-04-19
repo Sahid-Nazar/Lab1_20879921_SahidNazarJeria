@@ -120,8 +120,8 @@
          (id                   (jugador-id jugador-actual))
          (nombre               (jugador-nombre jugador-actual))
          (dinero-jugador       (jugador-dinero jugador-actual)) 
-         (propiedades-viejas   (jugador-propiedades jugador-actual))
-         (posicion             (jugador-posicion jugador-actual))
+         (propiedades-viejas   (jugador-propiedades jugador-actual)) 
+         (posicion             (jugador-posicion jugador-actual)) 
          (estaEnCarcel         (jugador-estaEnCarcel jugador-actual)) 
          (totalCartas          (jugador-totalCartasSalirCarcel jugador-actual)) 
 
@@ -131,7 +131,7 @@
 
     ; Hacemos la condicion para saber si el jugador tiene suficiente dinero
     (if (>= dinero-jugador precio-propiedad)
-        ; SI puede comprar se calcula nuevos valores y construye nuevo jugador
+        ; Si puede comprar, entonces calcula nuevos valores y construye nuevo jugador
         (let* ((dinero-nuevo       (- dinero-jugador precio-propiedad))
                (propiedades-nuevas (cons propiedad-a-comprar propiedades-viejas))) ; Añade al principio
 
@@ -143,8 +143,8 @@
                    posicion
                    estaEnCarcel
                    totalCartas))
-        ; Si el dinero del jugador es menor (caso else) devolvemos el jugador original sin modificaciones
+        ; Sino puede comprar, entonces devolvemos el jugador original sin modificaciones
         jugador-actual
      ) 
    ) 
-)
+) 
