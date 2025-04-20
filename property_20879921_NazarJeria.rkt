@@ -1,7 +1,8 @@
 #lang racket
 (provide propiedad
          propiedad-id propiedad-nombre propiedad-precio propiedad-renta
-         propiedad-dueño propiedad-casas propiedad-esHotel propiedad-estaHipotecada)
+         propiedad-dueño propiedad-casas propiedad-esHotel propiedad-estaHipotecada
+         propiedad-calcular-renta)
 ; Representación TDA Propiedad:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. id (Integer)
@@ -80,3 +81,24 @@
 ; Tipo recursión: No aplica
 (define (propiedad-estaHipotecada una-propiedad)
   (list-ref una-propiedad 7)) ; 8vo elemento (índice 7)
+
+
+
+; Descripción: Calcula el monto de la renta a pagar por una propiedad, considerando las casas/hotel construidos.
+;              Si hay Hotel, Renta = RentaBase * 5. Si no, Renta = RentaBase * (1 + NumCasas). (Reglas no especificadas en enunciado).
+; Dominio: jugador(jugador) X propiedad(propiedad) ; Nota: El jugador no se usa en este cálculo simple, pero se mantiene por dominio RF13 v1.1.
+; Recorrido: Integer (Monto de la renta a pagar)
+; Tipo recursión: No aplica
+(define (propiedad-calcular-renta un-jugador una-propiedad)
+  (let* ((renta-base (propiedad-renta una-propiedad))    ; Obtenemos la renta base
+         (num-casas  (propiedad-casas una-propiedad))   ; Obtenemos el número de casas
+         (hay-hotel  (propiedad-esHotel una-propiedad))) ; Vemos si hay hotel (#t o #f)
+
+    ; Calculamos la renta usando if basado en si hay hotel
+    (if hay-hotel
+        ; Si hay hotel, calculamos RentaBase * 5
+        (* renta-base 5)
+        ; Si no hay hotel, calculamos RentaBase * (1 + numero de casas)
+        (* renta-base (+ 1 num-casas)))
+   ) 
+) 
