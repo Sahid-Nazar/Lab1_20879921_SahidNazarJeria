@@ -1,5 +1,5 @@
 #lang racket
-(provide jugador jugador-mover jugador-comprar-propiedad
+(provide jugador jugador-mover jugador-comprar-propiedad jugador-pagar-renta
          jugador-id jugador-nombre jugador-dinero jugador-propiedades
          jugador-posicion jugador-estaEnCarcel jugador-totalCartasSalirCarcel)
 ; Representación TDA Jugador:
@@ -147,4 +147,53 @@
         jugador-actual
      ) 
    ) 
-) 
+)
+
+
+; Descripción: Transfiere un monto de dinero desde el jugador-pagador al jugador-receptor. Verifica si el pagador tiene fondos suficientes.
+;              Devuelve una lista con los dos jugadores actualizados. Si el pagador no tiene fondos, devuelve lista con los dos jugadores originales.
+; Dominio: jugador-pagador(jugador) X jugador-receptor(jugador) X monto(Integer)
+; Recorrido: (List jugador jugador) ; Lista con [TDA pagador TDA receptor] actualizados (o los originales).
+; Tipo recursión: No aplica
+(define (jugador-pagar-renta jugador-pagador jugador-receptor monto)
+  ; Extraemos el dinero del pagador para la comparación
+  (let ((dinero-pagador (jugador-dinero jugador-pagador)))
+
+    ; Vemos si el pagador puede cubrir el monto
+    (if (>= dinero-pagador monto)
+
+        ; --- Rama SI (Sí puede pagar) ---
+        ; Usamos let* para calcular y construir los nuevos jugadores
+        (let* (
+               ; Calculamos nuevos dineros 
+               (pagador-dinero-nuevo  (- dinero-pagador monto))
+               (receptor-dinero-nuevo (+ (jugador-dinero jugador-receptor) monto)) ; Sacamos dinero del receptor y sumamos
+
+               ; Creamos el pagador actualizado 
+               (pagador-actualizado (jugador (jugador-id jugador-pagador)
+                                             (jugador-nombre jugador-pagador)
+                                             pagador-dinero-nuevo ; Nuevo dinero
+                                             (jugador-propiedades jugador-pagador)
+                                             (jugador-posicion jugador-pagador)
+                                             (jugador-estaEnCarcel jugador-pagador)
+                                             (jugador-totalCartasSalirCarcel jugador-pagador)))
+
+               ; Creamos el receptor actualizado 
+               (receptor-actualizado(jugador (jugador-id jugador-receptor)
+                                             (jugador-nombre jugador-receptor)
+                                             receptor-dinero-nuevo ; Nuevo dinero
+                                             (jugador-propiedades jugador-receptor)
+                                             (jugador-posicion jugador-receptor)
+                                             (jugador-estaEnCarcel jugador-receptor)
+                                             (jugador-totalCartasSalirCarcel jugador-receptor)))
+              ) 
+
+          ; Devolvemos la lista con los dos jugadores actualizados
+          (list pagador-actualizado receptor-actualizado))
+
+        ; Si no puede pagar
+        ; Devolvemos la lista con los dos jugadores originales, sin cambios
+        (list jugador-pagador jugador-receptor)
+      )
+    ) 
+)
