@@ -2,7 +2,7 @@
 (provide propiedad
          propiedad-id propiedad-nombre propiedad-precio propiedad-renta
          propiedad-dueño propiedad-casas propiedad-esHotel propiedad-estaHipotecada
-         propiedad-calcular-renta)
+         propiedad-calcular-renta propiedad-hipotecar)
 ; Representación TDA Propiedad:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. id (Integer)
@@ -101,4 +101,21 @@
         ; Si no hay hotel, calculamos RentaBase * (1 + numero de casas)
         (* renta-base (+ 1 num-casas)))
    ) 
-) 
+)
+
+
+; Descripción: Cambia el estado de una propiedad a hipotecada. Devuelve un nuevo TDA propiedad con el estado actualizado.
+; Dominio: propiedad(propiedad)
+; Recorrido: propiedad (Un nuevo TDA propiedad con el campo 'estaHipotecada' puesto a #t)
+; Tipo recursión: No aplica
+(define (propiedad-hipotecar propiedad-a-hipotecar)
+  ; Construimos y devolvemos una nueva propiedad igual a la original,
+  ; pero con el último campo (estaHipotecada) puesto a #t.
+  (propiedad (propiedad-id propiedad-a-hipotecar)        
+             (propiedad-nombre propiedad-a-hipotecar)    
+             (propiedad-precio propiedad-a-hipotecar)   
+             (propiedad-renta propiedad-a-hipotecar)     
+             (propiedad-dueño propiedad-a-hipotecar)     
+             (propiedad-casas propiedad-a-hipotecar)     
+             (propiedad-esHotel propiedad-a-hipotecar)   
+             #t))  
