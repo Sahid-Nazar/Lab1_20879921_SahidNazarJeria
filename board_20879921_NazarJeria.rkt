@@ -1,5 +1,7 @@
 #lang racket
-(provide tablero tablero-agregar-propiedades)
+(provide tablero tablero-agregar-propiedades
+         tablero-propiedades tablero-cartas-suerte
+         tablero-cartas-comunidad tablero-casillas-especiales)
 ; Representación TDA Tablero:
 ; Se utiliza una lista principal que contiene cuatro sub-listas:
 ; 1. (car lista)      => Lista de propiedades (List of property). La posición se manejará después.
@@ -13,6 +15,36 @@
 ; Tipo recursión: No aplica
 (define (tablero propiedades cartas-suerte cartas-comunidad casillas-especiales)
   (list propiedades cartas-suerte cartas-comunidad casillas-especiales))
+
+; Selectores TDA Tablero 
+
+; Descripción: Obtiene la lista de propiedades del tablero.
+; Dominio: tablero(tablero)
+; Recorrido: List ; Lista de TDA propiedad (o pares propiedad.posicion)
+; Tipo recursión: No aplica
+(define (tablero-propiedades un-tablero)
+  (car un-tablero)) ; 1er elemento
+
+; Descripción: Obtiene la lista (mazo) de cartas de Suerte.
+; Dominio: tablero(tablero)
+; Recorrido: List ; Lista de TDA carta
+; Tipo recursión: No aplica
+(define (tablero-cartas-suerte un-tablero)
+  (cadr un-tablero)) ; 2do elemento
+
+; Descripción: Obtiene la lista (mazo) de cartas de Comunidad.
+; Dominio: tablero(tablero)
+; Recorrido: List ; Lista de TDA carta
+; Tipo recursión: No aplica
+(define (tablero-cartas-comunidad un-tablero)
+  (caddr un-tablero)) ; 3er elemento
+
+; Descripción: Obtiene la lista de casillas especiales del tablero.
+; Dominio: tablero(tablero)
+; Recorrido: List ; Lista que representa casillas especiales
+; Tipo recursión: No aplica
+(define (tablero-casillas-especiales un-tablero)
+  (cadddr un-tablero)) ; 4to elemento
 
 
 
