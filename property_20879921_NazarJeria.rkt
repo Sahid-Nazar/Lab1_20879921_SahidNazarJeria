@@ -2,7 +2,8 @@
 (provide propiedad
          propiedad-id propiedad-nombre propiedad-precio propiedad-renta
          propiedad-dueño propiedad-casas propiedad-esHotel propiedad-estaHipotecada
-         propiedad-calcular-renta propiedad-hipotecar)
+         propiedad-calcular-renta propiedad-hipotecar propiedad-construir-casa
+         propiedad-construir-hotel)
 ; Representación TDA Propiedad:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. id (Integer)
@@ -85,23 +86,19 @@
 
 
 ; Descripción: Calcula el monto de la renta a pagar por una propiedad, considerando las casas/hotel construidos.
-;              Si hay Hotel, Renta = RentaBase * 5. Si no, Renta = RentaBase * (1 + NumCasas). (Reglas no especificadas en enunciado).
-; Dominio: jugador(jugador) X propiedad(propiedad) ; Nota: El jugador no se usa en este cálculo simple, pero se mantiene por dominio RF13 v1.1.
+;              renta con hotel = 2 * renta con 4 casas
+; Dominio: jugador(jugador) X propiedad(propiedad) 
 ; Recorrido: Integer (Monto de la renta a pagar)
 ; Tipo recursión: No aplica
 (define (propiedad-calcular-renta un-jugador una-propiedad)
-  (let* ((renta-base (propiedad-renta una-propiedad))    ; Obtenemos la renta base
-         (num-casas  (propiedad-casas una-propiedad))   ; Obtenemos el número de casas
-         (hay-hotel  (propiedad-esHotel una-propiedad))) ; Vemos si hay hotel (#t o #f)
+  (let* ((renta-base (propiedad-renta una-propiedad))
+         (num-casas (propiedad-casas una-propiedad))
+         (hay-hotel (propiedad-esHotel una-propiedad)))
+    (cond
+      [(propiedad-estaHipotecada una-propiedad) 0]
+      [hay-hotel (* renta-base 2 (+ 1 4))] ; 2 veces la renta máxima con 4 casas
+      [else (* renta-base (+ 1 num-casas))])))
 
-    ; Calculamos la renta usando if basado en si hay hotel
-    (if hay-hotel
-        ; Si hay hotel, calculamos RentaBase * 5
-        (* renta-base 5)
-        ; Si no hay hotel, calculamos RentaBase * (1 + numero de casas)
-        (* renta-base (+ 1 num-casas)))
-   ) 
-)
 
 
 ; Descripción: Cambia el estado de una propiedad a hipotecada. Devuelve un nuevo TDA propiedad con el estado actualizado.
@@ -118,4 +115,41 @@
              (propiedad-dueño propiedad-a-hipotecar)     
              (propiedad-casas propiedad-a-hipotecar)     
              (propiedad-esHotel propiedad-a-hipotecar)   
-             #t))  
+             #t))
+
+
+; Descripción: Aumenta en 1 el número de casas de una propiedad, si no supera el máximo definido por el juego.
+; Dominio: propiedad(propiedad) X juego(juego)
+; Recorrido: propiedad
+; Tipo recursión: No aplica
+(define (propiedad-construir-casa prop juego)
+  (let* ((casas (propiedad-casas prop))
+         (max-casas (juego-maximoCasas juego)))
+    (if (< casas max-casas)
+        (propiedad (propiedad-id prop)
+                   (propiedad-nombre prop)
+                   (propiedad-precio prop)
+                   (propiedad-renta prop)
+                   (propiedad-dueño prop)
+                   (+ casas 1)
+                   (propiedad-esHotel prop)
+                   (propiedad-estaHipotecada prop))
+        prop)))
+
+
+
+; Descripción: Convierte las casas de una propiedad en un hotel si tiene el máximo de casas.
+; Dominio: propiedad(propiedad) X juego(juego)
+; Recorrido: propiedad
+; Tipo recursión: No aplica
+(define (propiedad-construir-hotel prop juego)
+  (if (= (propiedad-casas prop) (juego-maximoCasas juego))
+      (propiedad (propiedad-id prop)
+                 (propiedad-nombre prop)
+                 (propiedad-precio prop)
+                 (propiedad-renta prop)
+                 (propiedad-dueño prop)
+                 0                ; casas = 0
+                 #t               ; esHotel = true
+                 (propiedad-estaHipotecada prop))
+      prop))
