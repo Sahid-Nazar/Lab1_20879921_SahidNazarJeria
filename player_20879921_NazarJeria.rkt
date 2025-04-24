@@ -197,3 +197,11 @@
       )
     ) 
 )
+
+
+; Descripción: Verifica si un jugador está en bancarrota (sin dinero).
+; Dominio: jugador
+; Recorrido: boolean
+; Tipo recursion: No aplica
+(define (jugador-esta-en-bancarrota jugador)
+  (<= (jugador-dinero jugador) 0))
