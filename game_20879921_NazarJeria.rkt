@@ -92,31 +92,28 @@
 
 ; Descripción: Agrega un jugador a la lista de jugadores de la partida. Devuelve un nuevo estado del juego.
 ; Dominio: juego(juego) X jugador(jugador) ; Se asume que el jugador ya tiene el capital inicial.
-; Recorrido: juego (Una nueva estructura de lista representando el estado del juego actualizado)
+; Recorrido: juego 
 ; Tipo recursión: No aplica
 (define (juego-agregar-jugador juego-actual jugador-nuevo)
   (let* (
-         ; Extraemos todas las partes necesarias
-         ; La lista de jugadores vieja
-         (jugadores-viejos      (car juego-actual)) ; 1er elemento
-         ; Las partes que no cambian
-         (tablero               (cadr juego-actual))  ; 2do elemento
-         (dineroBanco           (caddr juego-actual)) ; 3er elemento
-         (numeroDados           (cadddr juego-actual)); 4to elemento
-         ; Para el resto, usamos list-ref considerando que el 1er elemento es indice 0
-         (turnoActual           (list-ref juego-actual 4)) ; 5to elemento (índice 4)
-         (tasaImpuesto          (list-ref juego-actual 5)) ; 6to elemento (índice 5)
-         (maximoCasas           (list-ref juego-actual 6)) ; 7mo elemento (índice 6)
-         (maximoHoteles         (list-ref juego-actual 7)) ; 8vo elemento (índice 7)
-         (estadoJuego           (list-ref juego-actual 8)) ; 9no elemento (índice 8)
+         ; Extracción usando Selectores de Juego
+         (jugadores-viejos      (juego-lista-jugadores juego-actual)) 
+         (tablero               (juego-tablero juego-actual))         
+         (dineroBanco           (juego-dineroBanco juego-actual))     
+         (numeroDados           (juego-numeroDados juego-actual))    
+         (turnoActual           (juego-indiceTurnoActual juego-actual)) 
+         (tasaImpuesto          (juego-tasaImpuesto juego-actual))   
+         (maximoCasas           (juego-maximoCasas juego-actual))     
+         (maximoHoteles         (juego-maximoHoteles juego-actual))   
+         (estadoJuego           (juego-estadoJuego juego-actual))      
 
-         ; Añadimos el jugador-nuevo (dentro de una lista) al final de la lista vieja
+         ; Cálculo de la nueva lista de jugadores 
          (jugadores-actualizados (append jugadores-viejos (list jugador-nuevo)))
          )
 
-    ; Construimos y devolvemos el nuevo estado del juego 
-    (juego jugadores-actualizados
-           tablero          ; Los pusimos hacia abajo para que no quedara una linea tan larga
+    ; Construimos y devolvemos el nuevo estado del juego
+    (juego jugadores-actualizados 
+           tablero                
            dineroBanco
            numeroDados
            turnoActual
@@ -124,19 +121,18 @@
            maximoCasas
            maximoHoteles
            estadoJuego)
-    ))
-
+   ))
 
 
 ; Descripción: Obtiene el TDA del jugador cuyo turno está actualmente en curso.
-; Dominio: juego(juego)
-; Recorrido: jugador (El TDA del jugador actual)
+; Dominio: juego
+; Recorrido: jugador 
 ; Tipo recursión: No aplica
 (define (juego-obtener-jugador-actual juego-actual)
-  ; Accedemos a la lista de jugadores 
-  ; y luego obtenemos el elemento en el índice del turno actual que corresponde al indice 4 (list-ref juego-actual 4)
-  (list-ref (car juego-actual) (list-ref juego-actual 4)))
-
+  (let ((lista-jugadores     (juego-lista-jugadores juego-actual))
+        (indice-turno-actual (juego-indiceTurnoActual juego-actual))) 
+    ; Devolvemos el jugador en ese índice de la lista de jugadores
+    (list-ref lista-jugadores indice-turno-actual)))
 
 
 

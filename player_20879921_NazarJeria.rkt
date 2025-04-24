@@ -1,4 +1,6 @@
 #lang racket
+(require "property_20879921_NazarJeria.rkt")
+
 (provide jugador jugador-mover jugador-comprar-propiedad jugador-pagar-renta
          jugador-id jugador-nombre jugador-dinero jugador-propiedades
          jugador-posicion jugador-estaEnCarcel jugador-totalCartasSalirCarcel)

@@ -1,4 +1,6 @@
 #lang racket
+(require "game_20879921_NazarJeria.rkt")  ; Para usar funciones de `game_20879921_NazarJeria.rkt`, como `juego-maximoCasas`
+
 (provide propiedad
          propiedad-id propiedad-nombre propiedad-precio propiedad-renta
          propiedad-dueño propiedad-casas propiedad-esHotel propiedad-estaHipotecada
@@ -24,7 +26,6 @@
   (list id nombre precio renta dueño casas esHotel estaHipotecada))
 
 
-
 ; Selectores TDA Propiedad
 
 ; Descripción: Obtiene el ID único de la propiedad.
@@ -46,7 +47,7 @@
 ; Recorrido: Integer
 ; Tipo recursión: No aplica
 (define (propiedad-precio una-propiedad)
-  (caddr una-propiedad)) 
+  (caddr una-propiedad))  
 
 ; Descripción: Obtiene el monto de la renta base de la propiedad.
 ; Dominio: propiedad(propiedad)
@@ -60,28 +61,28 @@
 ; Recorrido: jugador O #f
 ; Tipo recursión: No aplica
 (define (propiedad-dueño una-propiedad)
-  (list-ref una-propiedad 4)) ; 5to elemento (índice 4)
+  (list-ref una-propiedad 4)) 
 
 ; Descripción: Obtiene el número de casas construidas en la propiedad.
 ; Dominio: propiedad(propiedad)
 ; Recorrido: Integer
 ; Tipo recursión: No aplica
 (define (propiedad-casas una-propiedad)
-  (list-ref una-propiedad 5)) ; 6to elemento (índice 5)
+  (list-ref una-propiedad 5)) 
 
 ; Descripción: Verifica si hay un hotel construido en la propiedad.
 ; Dominio: propiedad(propiedad)
 ; Recorrido: Boolean
 ; Tipo recursión: No aplica
 (define (propiedad-esHotel una-propiedad)
-  (list-ref una-propiedad 6)) ; 7mo elemento (índice 6)
+  (list-ref una-propiedad 6)) 
 
 ; Descripción: Verifica si la propiedad está actualmente hipotecada.
 ; Dominio: propiedad(propiedad)
 ; Recorrido: Boolean
 ; Tipo recursión: No aplica
 (define (propiedad-estaHipotecada una-propiedad)
-  (list-ref una-propiedad 7)) ; 8vo elemento (índice 7)
+  (list-ref una-propiedad 7)) 
 
 
 
