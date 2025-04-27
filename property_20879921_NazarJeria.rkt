@@ -126,15 +126,17 @@
 (define (propiedad-construir-casa prop juego)
   (let* ((casas (propiedad-casas prop))
          (max-casas (juego-maximoCasas juego)))
-    (if (< casas max-casas)
-        (propiedad (propiedad-id prop)
-                   (propiedad-nombre prop)
-                   (propiedad-precio prop)
-                   (propiedad-renta prop)
-                   (propiedad-dueño prop)
-                   (+ casas 1)
-                   (propiedad-esHotel prop)
-                   (propiedad-estaHipotecada prop))
+    (if (not (propiedad-estaHipotecada prop)) ; Verifica si no está hipotecada
+        (if (< casas max-casas)
+            (propiedad (propiedad-id prop)
+                       (propiedad-nombre prop)
+                       (propiedad-precio prop)
+                       (propiedad-renta prop)
+                       (propiedad-dueño prop)
+                       (+ casas 1)
+                       (propiedad-esHotel prop)
+                       (propiedad-estaHipotecada prop))
+            prop)
         prop)))
 
 
@@ -144,13 +146,15 @@
 ; Recorrido: propiedad
 ; Tipo recursión: No aplica
 (define (propiedad-construir-hotel prop juego)
-  (if (= (propiedad-casas prop) (juego-maximoCasas juego))
-      (propiedad (propiedad-id prop)
-                 (propiedad-nombre prop)
-                 (propiedad-precio prop)
-                 (propiedad-renta prop)
-                 (propiedad-dueño prop)
-                 0                ; casas = 0
-                 #t               ; esHotel = true
-                 (propiedad-estaHipotecada prop))
+  (if (not (propiedad-estaHipotecada prop)) ; Verifica si no está hipotecada
+      (if (= (propiedad-casas prop) (juego-maximoCasas juego))
+          (propiedad (propiedad-id prop)
+                     (propiedad-nombre prop)
+                     (propiedad-precio prop)
+                     (propiedad-renta prop)
+                     (propiedad-dueño prop)
+                     0                ; casas = 0
+                     #t               ; esHotel = true
+                     (propiedad-estaHipotecada prop))
+          prop)
       prop))

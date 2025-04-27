@@ -15,6 +15,7 @@ El proyecto está compuesto por los siguientes archivos:
 - `Informe_20879921_NazarJeria.docx`: Informe del proyecto.
 - `AUTOEVALUACION_20879921_NazarJeria.txt`: Autoevaluación del trabajo realizado.
 - `lab1_20879921_NazarJeria.rkt`: Implementación del laboratorio 1, que incluye las funciones de lanzar dados y otras funcionalidades básicas del juego.
+- `script_base_20879921_NazarJeria.rkt`: Script base con pruebas y ejecución.
 
 ## Instrucciones de Uso
 
