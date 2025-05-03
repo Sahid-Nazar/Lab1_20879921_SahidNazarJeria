@@ -1,0 +1,37 @@
+Autoevaluación - Sahid Nazar Jeria - RUT: 20.879.921-5
+
+Requerimientos Funcionales (RF):
+---------------------------------
+
+RF1  - Creación y manejo de jugadores:                          1
+RF2  - Representación del tablero y propiedades:                1
+RF3  - Implementación de cartas suerte y comunidad:             1
+RF4  - Movimiento de jugadores (dados y desplazamiento):        1
+RF5  - Simulación de turnos y juego-jugar-turno:                1
+RF6  - Construcción de casas y hoteles:                         1
+RF7  - Compra de propiedades:                                   1
+RF8  - Pago de renta:                                           1
+RF9  - Manejo de cárcel:                                        1
+RF10 - Bancarrota:                                              1
+RF11 - Uso de cartas suerte y comunidad:                        1
+RF12 - Actualización de juego:                                  1
+RF13 - Módulo y estructura del código:                          1
+RF14 - Uso correcto de semilla en dados:                        1
+RF15 - Ejecución mínima de 3 jugadas por jugador:               1
+RF16 - Inclusión de mínimo 15 propiedades:                      1
+RF17 - Inclusión de mínimo 10 cartas de cada tipo:              1
+RF18 - Uso correcto de scripts de prueba (2 y 3 jugadores):     1
+
+Total RF: 18/18 → Puntaje: 1.0
+
+Requerimientos No Funcionales (RNF):
+-------------------------------------
+
+RNF1 - Estructura modular del proyecto:                         1
+RNF2 - Nombres de archivos correctos:                           1
+RNF3 - Uso de Git con historial de commits:                     1
+RNF4 - Documentación básica en README.md:                       1
+RNF5 - Informe completo y conforme a rúbrica:                   1
+
+Total RNF: 5/5 → Puntaje: 1.0
+
