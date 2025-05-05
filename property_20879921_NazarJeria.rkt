@@ -1,29 +1,29 @@
 #lang racket
-(require "game_20879921_NazarJeria.rkt")  ; Para usar funciones de `game_20879921_NazarJeria.rkt`, como `juego-maximoCasas`
-
 (provide propiedad
          propiedad-id propiedad-nombre propiedad-precio propiedad-renta
          propiedad-dueño propiedad-casas propiedad-esHotel propiedad-estaHipotecada
          propiedad-calcular-renta propiedad-hipotecar propiedad-construir-casa
-         propiedad-construir-hotel)
+         propiedad-construir-hotel propiedad-actualizar-dueno)
 ; Representación TDA Propiedad:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. id (Integer)
 ; 2. nombre (String)
 ; 3. precio (Integer)
 ; 4. renta (Integer)
-; 5. dueño (jugador O #f) ;  #f Lo usaremos para indicar que no tiene dueño (propiedad del Banco)
+; 5. dueño (jugador O #f) 
 ; 6. casas (Integer)
 ; 7. esHotel (Boolean)
 ; 8. estaHipotecada (Boolean)
 
-; Descripción: Función para el TDA propiedad. Crea la estructura de datos de la propiedad.
-; Dominio: id(Integer) X nombre(String) X precio(Integer) X renta(Integer) X dueño(jugador/#f) X casas(Integer) X esHotel(Boolean) X estaHipotecada(Boolean)
-; Recorrido: propiedad (Estructura para propiedad representando al jugador según la definición de representación)
-; Tipo recursión: No aplica
 
-(define(propiedad id nombre precio renta dueño casas esHotel estaHipotecada)
+
+; Descripción: Constructor del TDA propiedad, crea una propiedad en el juego con sus respectivos atributos.
+; Dominio: id(int) X nombre(string) X precio(int) X renta(int) X dueño(int or #f) X casas(int) X esHotel(bool) X estaHipotecada(bool)
+; Recorrido: propiedad (lista con los datos especificados)
+; Tipo de recursión: No aplica
+(define (propiedad id nombre precio renta dueño casas esHotel estaHipotecada)
   (list id nombre precio renta dueño casas esHotel estaHipotecada))
+
 
 
 ; Selectores TDA Propiedad
@@ -42,12 +42,15 @@
 (define (propiedad-nombre una-propiedad)
   (cadr una-propiedad)) 
 
-; Descripción: Obtiene el precio de compra de la propiedad.
+; Descripción: Obtiene el precio de compra de la propiedad si es lista válida.
 ; Dominio: propiedad(propiedad)
 ; Recorrido: Integer
 ; Tipo recursión: No aplica
 (define (propiedad-precio una-propiedad)
-  (caddr una-propiedad))  
+  (if (list? una-propiedad)
+      (caddr una-propiedad)
+      (error 'propiedad-precio "Error, Se esperaba una propiedad válida, no un número")))
+ 
 
 ; Descripción: Obtiene el monto de la renta base de la propiedad.
 ; Dominio: propiedad(propiedad)
@@ -56,12 +59,16 @@
 (define (propiedad-renta una-propiedad)
   (cadddr una-propiedad)) 
 
+
 ; Descripción: Obtiene el dueño actual de la propiedad (TDA jugador o #f si no tiene).
 ; Dominio: propiedad(propiedad)
 ; Recorrido: jugador O #f
 ; Tipo recursión: No aplica
 (define (propiedad-dueño una-propiedad)
-  (list-ref una-propiedad 4)) 
+  (if (list? una-propiedad)
+      (list-ref una-propiedad 4)
+      (error 'propiedad-dueño "Error, Se esperaba una propiedad válida, no un número")))
+ 
 
 ; Descripción: Obtiene el número de casas construidas en la propiedad.
 ; Dominio: propiedad(propiedad)
@@ -86,19 +93,18 @@
 
 
 
-; Descripción: Calcula el monto de la renta a pagar por una propiedad, considerando las casas/hotel construidos.
-;              renta con hotel = 2 * renta con 4 casas
-; Dominio: jugador(jugador) X propiedad(propiedad) 
-; Recorrido: Integer (Monto de la renta a pagar)
+; Descripción: Calcula la renta de una propiedad dependiendo de casas/hotel.
+; Dominio: jugador X propiedad
+; Recorrido: Integer
 ; Tipo recursión: No aplica
 (define (propiedad-calcular-renta un-jugador una-propiedad)
-  (let* ((renta-base (propiedad-renta una-propiedad))
-         (num-casas (propiedad-casas una-propiedad))
-         (hay-hotel (propiedad-esHotel una-propiedad)))
-    (cond
+  (let ((renta-base (propiedad-renta una-propiedad))
+        (casas (propiedad-casas una-propiedad))
+        (hotel (propiedad-esHotel una-propiedad)))
+    (cond  
       [(propiedad-estaHipotecada una-propiedad) 0]
-      [hay-hotel (* renta-base 2 (+ 1 4))] ; 2 veces la renta máxima con 4 casas
-      [else (* renta-base (+ 1 num-casas))])))
+      [hotel (* renta-base 10)]
+      [else (* renta-base (+ 1 casas))])))
 
 
 
@@ -119,42 +125,55 @@
              #t))
 
 
-; Descripción: Aumenta en 1 el número de casas de una propiedad, si no supera el máximo definido por el juego.
-; Dominio: propiedad(propiedad) X juego(juego)
+; Descripción: Aumenta en 1 el número de casas de una propiedad si no supera el máximo permitido.
+; Dominio: propiedad X max-casas(Integer)
 ; Recorrido: propiedad
 ; Tipo recursión: No aplica
-(define (propiedad-construir-casa prop juego)
-  (let* ((casas (propiedad-casas prop))
-         (max-casas (juego-maximoCasas juego)))
-    (if (not (propiedad-estaHipotecada prop)) ; Verifica si no está hipotecada
-        (if (< casas max-casas)
-            (propiedad (propiedad-id prop)
-                       (propiedad-nombre prop)
-                       (propiedad-precio prop)
-                       (propiedad-renta prop)
-                       (propiedad-dueño prop)
-                       (+ casas 1)
-                       (propiedad-esHotel prop)
-                       (propiedad-estaHipotecada prop))
-            prop)
-        prop)))
+(define (propiedad-construir-casa propiedad max-casas)
+  (if (not (propiedad-estaHipotecada propiedad))
+      (if (< (propiedad-casas propiedad) max-casas)
+          (propiedad (propiedad-id propiedad)
+                     (propiedad-nombre propiedad)
+                     (propiedad-precio propiedad)
+                     (propiedad-renta propiedad)
+                     (propiedad-dueño propiedad)
+                     (+ (propiedad-casas propiedad) 1)
+                     (propiedad-esHotel propiedad)
+                     (propiedad-estaHipotecada propiedad))
+          propiedad)
+      propiedad))
 
 
 
-; Descripción: Convierte las casas de una propiedad en un hotel si tiene el máximo de casas.
-; Dominio: propiedad(propiedad) X juego(juego)
+; Descripción: Convierte una propiedad en un hotel si tiene el máximo de casas permitido.
+; Dominio: propiedad X max-casas(Integer)
 ; Recorrido: propiedad
 ; Tipo recursión: No aplica
-(define (propiedad-construir-hotel prop juego)
-  (if (not (propiedad-estaHipotecada prop)) ; Verifica si no está hipotecada
-      (if (= (propiedad-casas prop) (juego-maximoCasas juego))
-          (propiedad (propiedad-id prop)
-                     (propiedad-nombre prop)
-                     (propiedad-precio prop)
-                     (propiedad-renta prop)
-                     (propiedad-dueño prop)
-                     0                ; casas = 0
-                     #t               ; esHotel = true
-                     (propiedad-estaHipotecada prop))
-          prop)
-      prop))
+(define (propiedad-construir-hotel propiedad max-casas)
+  (if (not (propiedad-estaHipotecada propiedad))
+      (if (= (propiedad-casas propiedad) max-casas)
+          (propiedad (propiedad-id propiedad)
+                     (propiedad-nombre propiedad)
+                     (propiedad-precio propiedad)
+                     (propiedad-renta propiedad)
+                     (propiedad-dueño propiedad)
+                     0
+                     #t
+                     (propiedad-estaHipotecada propiedad))
+          propiedad)
+      propiedad))
+
+
+
+
+; Descripción: Modifica el dueño de la propiedad
+; Dominio: propiedad(propiedad) X nuevo-dueño(int)
+; Recorrido: propiedad actualizada
+; Tipo recursión: No aplica
+(define (propiedad-actualizar-dueno prop nuevo-dueno)
+  (propiedad (propiedad-id prop) (propiedad-nombre prop) (propiedad-precio prop)
+             (propiedad-renta prop) nuevo-dueno (propiedad-casas prop)
+             (propiedad-esHotel prop) (propiedad-estaHipotecada prop)))
+
+
+

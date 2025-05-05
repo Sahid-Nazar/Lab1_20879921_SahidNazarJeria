@@ -1,29 +1,51 @@
 #lang racket
-(require "property_20879921_NazarJeria.rkt")
-(require "game_20879921_NazarJeria.rkt")
-(require "player_20879921_NazarJeria.rkt")
+(require "main_20879921_Sahid_NazarJeria.rkt")
 
-; Crear propiedad y juego 
-(define propiedad1 (propiedad 1 "Propiedad A" 200 50 #f 0 #f #f))
-(define jugador1 (jugador 1 "Jugador 1" 1500 (list propiedad1) 0 #f 0))
-(define juego-inicial (juego (list jugador1) '() 2000 2 0 10 5 4 "preparacion"))
+(display "===== CAPITALIA - PRUEBA 3 JUGADORES =====\n\n")
 
-; Prueba de construcción de casa 
-(define propiedad-con-casa (propiedad-construir-casa propiedad1 juego-inicial))
-(displayln (propiedad-casas propiedad-con-casa))  ; Debe mostrar 1
+; 1. Creación de jugadores
+(define p1 (jugador 1 "Carlos" 1500 '() 0 #f 0))
+(define p2 (jugador 2 "Ana" 1500 '() 0 #f 0))
+(define p3 (jugador 3 "Luis" 1500 '() 0 #f 0))
 
-; Verificar si la propiedad está hipotecada después de la construcción de casa
-(displayln (propiedad-estaHipotecada propiedad-con-casa))  ; Debe mostrar #f (si no está hipotecada)
+; 2. Creación de propiedades
+(define prop1 (propiedad 1 "Plaza Roja" 600 2 #f 0 #f #f))
+(define prop2 (propiedad 2 "Avenida Verde" 800 6 #f 0 #f #f))
+(define prop3 (propiedad 3 "Paseo Azul" 1000 8 #f 0 #f #f))
 
-; Construir más casas para llegar a 4 casas
-(define propiedad-con-2-casas (propiedad-construir-casa propiedad-con-casa juego-inicial))
-(define propiedad-con-3-casas (propiedad-construir-casa propiedad-con-2-casas juego-inicial))
-(define propiedad-con-4-casas (propiedad-construir-casa propiedad-con-3-casas juego-inicial))
+; 3. Cartas de suerte y comunidad
+(define chance1 (carta 1 "suerte" "Avanza a salida" 'ir-a-salida))
+(define community1 (carta 2 "comunidad" "Paga impuestos" 'pagar-impuesto))
 
-; Verificar si ya tiene 4 casas
-(displayln (propiedad-casas propiedad-con-4-casas))  ; Debe mostrar 4
+; 4. Tablero
+(define tablero-vacio 
+  (tablero '() (list chance1) (list community1)
+           (list (cons 'salida 0) (cons 'carcel 5) (cons 'suerte 3) (cons 'comunidad 7))))
 
-; Prueba de construcción de hotel 
-(define propiedad-con-hotel (propiedad-construir-hotel propiedad-con-4-casas juego-inicial))
-(displayln (propiedad-esHotel propiedad-con-hotel))  ; Debe mostrar #t
-(displayln (propiedad-casas propiedad-con-hotel))    ; Debe mostrar 0 casas (porque se convirtió en hotel)
+(define lista-propiedades (list (cons prop1 1) (cons prop2 4) (cons prop3 6)))
+(define tablero-completo (tablero-agregar-propiedad tablero-vacio lista-propiedades))
+
+; 5. Juego inicial
+(define g0 (juego '() tablero-completo 15000 2 0 10 4 1))
+(define g1 (juego-agregar-jugador g0 p1))
+(define g2 (juego-agregar-jugador g1 p2))
+(define g3 (juego-agregar-jugador g2 p3))
+
+; 6. Simulación
+(display "TURNO 1: Carlos\n")
+(define g4 (juego-jugar-turno g3 (lanzar-dados 1 2) #t #f #f #f))
+(display "TURNO 2: Ana\n")
+(define g5 (juego-jugar-turno g4 (lanzar-dados 2 5) #t #f #f #f))
+(display "TURNO 3: Luis\n")
+(define g6 (juego-jugar-turno g5 (lanzar-dados 5 0) #t #f #f #f))
+(display "TURNO 4: Carlos\n")
+(define g7 (juego-jugar-turno g6 (lanzar-dados 0 4) #t #f #f #f))
+
+; Verificación bancarrota
+(display "\n¿Jugador 1 en bancarrota?: ")
+(displayln (jugador-esta-en-bancarrota (get-jugador g7 0)))
+(display "¿Jugador 2 en bancarrota?: ")
+(displayln (jugador-esta-en-bancarrota (get-jugador g7 1)))
+(display "¿Jugador 3 en bancarrota?: ")
+(displayln (jugador-esta-en-bancarrota (get-jugador g7 2)))
+

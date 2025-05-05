@@ -1,9 +1,7 @@
 #lang racket
-(require "property_20879921_NazarJeria.rkt")
-
 (provide jugador jugador-mover jugador-comprar-propiedad jugador-pagar-renta
          jugador-id jugador-nombre jugador-dinero jugador-propiedades
-         jugador-posicion jugador-estaEnCarcel jugador-totalCartasSalirCarcel)
+         jugador-posicion jugador-estaEnCarcel jugador-totalCartasSalirCarcel jugador-esta-en-bancarrota)
 ; Representación TDA Jugador:
 ; Se utiliza una lista donde cada posición representa:
 ; 1. (car lista)      => id (Integer)
@@ -74,131 +72,64 @@
 
 
 
-; Descripción: Calcula la nueva posición de un jugador en el tablero después de lanzar los dados, considerando el movimiento circular (asumiendo 40 casillas). Devuelve un nuevo TDA jugador con la posición actualizada.
-; Dominio: jugador(jugador) X valoresDados(Pair) X juego(juego) ; valoresDados es (dado1 . dado2)
-; Recorrido: jugador (Un nuevo TDA jugador con el campo 'posicion' actualizado)
+
+; Descripción: Calcula la nueva posición de un jugador en el tablero después de lanzar los dados.
+; Dominio: jugador(jugador) X movimiento(Integer)
+; Recorrido: jugador
 ; Tipo recursión: No aplica
-(define (jugador-mover jugador-actual valoresDados juego-actual)
-  ; Asumimos tamaño del tablero = 40 para el movimiento circular
-  (let* (
-         ; Extracción usando Selectores 
-         (id                (jugador-id jugador-actual)) ; <-- Usamos selector
-         (nombre            (jugador-nombre jugador-actual)) ; <-- Usamos selector
-         (dinero            (jugador-dinero jugador-actual)) ; <-- Usamos selector
-         (propiedades       (jugador-propiedades jugador-actual)) ; <-- Usamos selector
-         (posicion-vieja    (jugador-posicion jugador-actual)) ; <-- Usamos selector
-         (estaEnCarcel      (jugador-estaEnCarcel jugador-actual)) ; <-- Usamos selector
-         (totalCartas       (jugador-totalCartasSalirCarcel jugador-actual)) ; <-- Usamos selector
-
-         ; Datos del lanzamiento de dados (estos no usan selectores de jugador)
-         (dado1             (car valoresDados))
-         (dado2             (cdr valoresDados))
-         (suma-dados        (+ dado1 dado2))
-
-         ; Cálculo de la nueva posición
-         (nueva-posicion    (modulo (+ posicion-vieja suma-dados) 40))
-        ) 
-
-    ; Construimos y devolvemos el nuevo jugador
-    ; Llamamos al constructor 'jugador' 
-    (jugador id
-             nombre
-             dinero
-             propiedades
-             nueva-posicion   ; <-- La posición actualizada
-             estaEnCarcel
-             totalCartas)
-  ))
+(define (jugador-mover jugador-actual movimiento)
+  (let* ((id (jugador-id jugador-actual))
+         (nombre (jugador-nombre jugador-actual))
+         (dinero (jugador-dinero jugador-actual))
+         (propiedades (jugador-propiedades jugador-actual))
+         (posicion-actual (jugador-posicion jugador-actual))
+         (estaEnCarcel (jugador-estaEnCarcel jugador-actual))
+         (totalCartas (jugador-totalCartasSalirCarcel jugador-actual))
+         (nueva-posicion (modulo (+ posicion-actual movimiento) 40))) ; 40 casillas en el tablero
+    (jugador id nombre dinero propiedades nueva-posicion estaEnCarcel totalCartas)))
 
 
 
-; Descripción: Permite a un jugador comprar una propiedad. Verifica si tiene dinero suficiente. Si puede comprar, devuelve un nuevo TDA jugador con el dinero descontado y la propiedad añadida a su lista. Si no puede, devuelve el jugador original sin cambios.
-; Dominio: jugador(jugador) X propiedad(propiedad)
-; Recorrido: jugador (El TDA del jugador actualizado o el original si no hay fondos)
+
+
+; Descripción: Permite comprar una propiedad si hay dinero suficiente.
+; Dominio: jugador X propiedad
+; Recorrido: jugador actualizado
 ; Tipo recursión: No aplica
-(define (jugador-comprar-propiedad jugador-actual propiedad-a-comprar)
-  (let* (
-         ; Datos del jugador actual usando selectores
-         (id                   (jugador-id jugador-actual))
-         (nombre               (jugador-nombre jugador-actual))
-         (dinero-jugador       (jugador-dinero jugador-actual)) 
-         (propiedades-viejas   (jugador-propiedades jugador-actual)) 
-         (posicion             (jugador-posicion jugador-actual)) 
-         (estaEnCarcel         (jugador-estaEnCarcel jugador-actual)) 
-         (totalCartas          (jugador-totalCartasSalirCarcel jugador-actual)) 
-
-         ; Dato de la propiedad usando selector 
-         (precio-propiedad     (propiedad-precio propiedad-a-comprar)) ; Usa selector de propiedad
-        )
-
-    ; Hacemos la condicion para saber si el jugador tiene suficiente dinero
-    (if (>= dinero-jugador precio-propiedad)
-        ; Si puede comprar, entonces calcula nuevos valores y construye nuevo jugador
-        (let* ((dinero-nuevo       (- dinero-jugador precio-propiedad))
-               (propiedades-nuevas (cons propiedad-a-comprar propiedades-viejas))) ; Añade al principio
-
-          ; Construimos y devolvemos el nuevo jugador con datos actualizados
-          (jugador id
-                   nombre
-                   dinero-nuevo         ; <-- Dinero actualizado
-                   propiedades-nuevas   ; <-- Lista de propiedades actualizada
-                   posicion
-                   estaEnCarcel
-                   totalCartas))
-        ; Sino puede comprar, entonces devolvemos el jugador original sin modificaciones
-        jugador-actual
-     ) 
-   ) 
-)
+(define (jugador-comprar-propiedad jugador-actual propiedad)
+  (let ((precio (list-ref propiedad 2))) ; precio de la propiedad
+    (if (>= (jugador-dinero jugador-actual) precio)
+        (jugador (jugador-id jugador-actual)
+                 (jugador-nombre jugador-actual)
+                 (- (jugador-dinero jugador-actual) precio)
+                 (cons propiedad (jugador-propiedades jugador-actual))
+                 (jugador-posicion jugador-actual)
+                 (jugador-estaEnCarcel jugador-actual)
+                 (jugador-totalCartasSalirCarcel jugador-actual))
+        jugador-actual)))
 
 
-; Descripción: Transfiere un monto de dinero desde el jugador-pagador al jugador-receptor. Verifica si el pagador tiene fondos suficientes.
-;              Devuelve una lista con los dos jugadores actualizados. Si el pagador no tiene fondos, devuelve lista con los dos jugadores originales.
-; Dominio: jugador-pagador(jugador) X jugador-receptor(jugador) X monto(Integer)
-; Recorrido: (List jugador jugador) ; Lista con [TDA pagador TDA receptor] actualizados (o los originales).
+; Descripción: Transfiere un monto entre jugadores si el pagador tiene suficiente dinero.
+; Dominio: jugador X jugador X monto
+; Recorrido: lista de dos jugadores actualizados
 ; Tipo recursión: No aplica
-(define (jugador-pagar-renta jugador-pagador jugador-receptor monto)
-  ; Extraemos el dinero del pagador para la comparación
-  (let ((dinero-pagador (jugador-dinero jugador-pagador)))
-
-    ; Vemos si el pagador puede cubrir el monto
-    (if (>= dinero-pagador monto)
-
-        ; --- Rama SI (Sí puede pagar) ---
-        ; Usamos let* para calcular y construir los nuevos jugadores
-        (let* (
-               ; Calculamos nuevos dineros 
-               (pagador-dinero-nuevo  (- dinero-pagador monto))
-               (receptor-dinero-nuevo (+ (jugador-dinero jugador-receptor) monto)) ; Sacamos dinero del receptor y sumamos
-
-               ; Creamos el pagador actualizado 
-               (pagador-actualizado (jugador (jugador-id jugador-pagador)
-                                             (jugador-nombre jugador-pagador)
-                                             pagador-dinero-nuevo ; Nuevo dinero
-                                             (jugador-propiedades jugador-pagador)
-                                             (jugador-posicion jugador-pagador)
-                                             (jugador-estaEnCarcel jugador-pagador)
-                                             (jugador-totalCartasSalirCarcel jugador-pagador)))
-
-               ; Creamos el receptor actualizado 
-               (receptor-actualizado(jugador (jugador-id jugador-receptor)
-                                             (jugador-nombre jugador-receptor)
-                                             receptor-dinero-nuevo ; Nuevo dinero
-                                             (jugador-propiedades jugador-receptor)
-                                             (jugador-posicion jugador-receptor)
-                                             (jugador-estaEnCarcel jugador-receptor)
-                                             (jugador-totalCartasSalirCarcel jugador-receptor)))
-              ) 
-
-          ; Devolvemos la lista con los dos jugadores actualizados
-          (list pagador-actualizado receptor-actualizado))
-
-        ; Si no puede pagar
-        ; Devolvemos la lista con los dos jugadores originales, sin cambios
-        (list jugador-pagador jugador-receptor)
-      )
-    ) 
-)
+(define (jugador-pagar-renta pagador receptor monto)
+  (if (>= (jugador-dinero pagador) monto)
+      (list (jugador (jugador-id pagador)
+                     (jugador-nombre pagador)
+                     (- (jugador-dinero pagador) monto)
+                     (jugador-propiedades pagador)
+                     (jugador-posicion pagador)
+                     (jugador-estaEnCarcel pagador)
+                     (jugador-totalCartasSalirCarcel pagador))
+            (jugador (jugador-id receptor)
+                     (jugador-nombre receptor)
+                     (+ (jugador-dinero receptor) monto)
+                     (jugador-propiedades receptor)
+                     (jugador-posicion receptor)
+                     (jugador-estaEnCarcel receptor)
+                     (jugador-totalCartasSalirCarcel receptor)))
+      (list pagador receptor)))
 
 
 ; Descripción: Verifica si un jugador está en bancarrota (sin dinero).
@@ -207,3 +138,11 @@
 ; Tipo recursion: No aplica
 (define (jugador-esta-en-bancarrota jugador)
   (<= (jugador-dinero jugador) 0))
+
+
+; Descripción: Obtiene la cantidad de cartas 'Salir de la Cárcel' que tiene un jugador.
+; Dominio: jugador(jugador)
+; Recorrido: Integer
+; Tipo recursión: No aplica
+(define (jugador-totalCartasSalirEnCarcel un-jugador)
+  (list-ref un-jugador 6))

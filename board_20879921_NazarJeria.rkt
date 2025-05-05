@@ -1,7 +1,8 @@
 #lang racket
-(provide tablero tablero-agregar-propiedades
-         tablero-propiedades tablero-cartas-suerte
-         tablero-cartas-comunidad tablero-casillas-especiales)
+(provide tablero tablero-propiedades tablero-cartas-suerte tablero-cartas-comunidad
+         tablero-casillas-especiales tablero-agregar-propiedad tablero-obtener-propiedad
+         tablero-es-casilla-especial?)
+
 ; Representación TDA Tablero:
 ; Se utiliza una lista principal que contiene cuatro sub-listas:
 ; 1. (car lista)      => Lista de propiedades (List of property). La posición se manejará después.
@@ -48,20 +49,46 @@
 
 
 
-; Descripción: Agrega una lista de propiedades (cada una asociada a una posición) al TDA tablero. Devuelve un nuevo tablero con las propiedades añadidas.
-; Dominio: tablero(tablero) X propiedades-con-posicion(List) ; donde cada elemento es un par (propiedad . posicion)
-; Recorrido: tablero (Una nueva estructura de lista representando el tablero actualizado)
+; Descripción: Agrega una lista de propiedades al tablero en posiciones específicas.
+; Dominio: tablero(tablero) X lista de propiedades-posiciones (List of (cons propiedad . posicion))
+; Recorrido: tablero (tablero actualizado)
+; Tipo de recursión: No aplica
+(define (tablero-agregar-propiedad un-tablero propiedades-nuevas)
+  (tablero
+   (append (tablero-propiedades un-tablero) propiedades-nuevas)
+   (tablero-cartas-suerte un-tablero)
+   (tablero-cartas-comunidad un-tablero)
+   (tablero-casillas-especiales un-tablero)))
+
+
+
+; Descripción: Obtiene la propiedad en una posición específica del tablero (si existe)
+; Dominio: tablero(tablero) X posicion(Integer)
+; Recorrido: (Pair propiedad Integer) o #f si no hay propiedad en esa posición
+; Tipo recursión: Recursión de cola
+(define (tablero-obtener-propiedad un-tablero posicion)
+  (let buscar ((propiedades (tablero-propiedades un-tablero)))
+    (cond
+      [(null? propiedades) #f] ; No hay propiedad en esa posición
+      [(= (cdr (car propiedades)) posicion) (car propiedades)] ; Devuelve el par (propiedad . posición)
+      [else (buscar (cdr propiedades))]))) 
+
+
+; Descripción: Verifica si en una posición del tablero hay una casilla especial.
+; Dominio: tablero(tablero) X posicion(Integer)
+; Recorrido: Boolean
 ; Tipo recursión: No aplica
-(define (tablero-agregar-propiedades tablero-actual lista-propiedades-con-posicion)
-  ; Lo primero que haremos sera desarmar el tablero viejo extrayendo las listas que ya estaban en el tablero
-  (let ((propiedades-viejas (car tablero-actual))
-        (cartas-suerte      (cadr tablero-actual))
-        (cartas-comunidad   (caddr tablero-actual))
-        (casillas-especiales (cadddr tablero-actual)))
-    ; Ahora creamos una lista que contenga SÓLO las propiedades de la lista de entrada
-    ; (ignorando la posición por ahora, usando 'map' y 'car')
-    (let* ((propiedades-nuevas-solas   (map car lista-propiedades-con-posicion))
-           ; Unimos propiedades viejas con propiedades nuevas 
-           (propiedades-actualizadas (append propiedades-viejas propiedades-nuevas-solas)))
-      ; LLamamos a la funcion constructora para armar el tablero con las entradas actualizadas
-      (tablero propiedades-actualizadas cartas-suerte cartas-comunidad casillas-especiales))))
+(define (tablero-es-casilla-especial? un-tablero posicion)
+  (let ((casillas (tablero-casillas-especiales un-tablero)))
+    (cond
+      [(null? casillas) #f]
+      [(= (cdr (car casillas)) posicion) #t]
+      [else (tablero-es-casilla-especial? (tablero (tablero-propiedades un-tablero)
+                                                   (tablero-cartas-suerte un-tablero)
+                                                   (tablero-cartas-comunidad un-tablero)
+                                                   (cdr casillas))
+                                          posicion)])))
+
+
+
+
