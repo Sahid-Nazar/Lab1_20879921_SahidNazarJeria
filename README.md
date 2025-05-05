@@ -18,9 +18,9 @@ El proyecto está compuesto por los siguientes archivos:
 - `game_20879921_NazarJeria.rkt`: Implementación del **TDA Juego**.
 - `main_20879921_Sahid_NazarJeria.rkt`: Archivo principal de requerimientos para unificar los TDAs.
 - `script_base_20879921_Sahid_NazarJeria.rkt`: **Script de simulación principal** que realiza la ejecución de turnos y controla el flujo del juego.
-- `script_prueba_1jugador.rkt`: Script de prueba para un jugador (caso de bancarrota).
-- `script_prueba_3jugadores.rkt`: Script de prueba para tres jugadores (caso de juego expandido).
-- `Informe_20879921_NazarJeria.docx`: Informe del proyecto.
+- `script1_20879921_NazarJeria.rkt`: Script de prueba con 2 jugadores.
+- `script2_20879921_NazarJeria.rkt`: Script de prueba con 3 jugadores.
+- `Informe_20879921_NazarJeria.pdf`: Informe del proyecto.
 - `AUTOEVALUACION_20879921_NazarJeria.txt`: Autoevaluación del trabajo realizado.
 
 ## Instrucciones de Uso
@@ -41,3 +41,7 @@ El proyecto está compuesto por los siguientes archivos:
 - Todas las funciones fueron testeadas en scripts personalizados.
 
 
+## Repositorio Público GitHub
+
+- Puedes acceder al repositorio del proyecto en el siguiente enlace:
+  https://github.com/Sahid-Nazar/Lab1_20879921_SahidNazarJeria
